@@ -10,6 +10,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
 
+import static generalstore.utils.ConfigReader.getProperty;
+
 public class Driver {
     public static AndroidDriver driver;
     public static AppiumDriverLocalService service;
@@ -20,19 +22,13 @@ public class Driver {
                     + File.separator + "src"
                     + File.separator + "test"
                     + File.separator + "resources"
-                    + File.separator + "General-Store.apk";
+                    + File.separator + getProperty("apkName");
 
             UiAutomator2Options options = new UiAutomator2Options()
+                    .setUiautomator2ServerInstallTimeout(Duration.ofSeconds(30)) // Server geç açıldığında hata vermemesi için
                     .setApp(appUrl);
 
-            URL url = null;
-            try {
-                url = new URL("http://0.0.0.0:4723");
-            } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
-            }
-
-            driver = new AndroidDriver(url, options);
+            driver = new AndroidDriver(service.getUrl(), options);
             driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         }
         return driver;
@@ -40,15 +36,14 @@ public class Driver {
 
     public static void serverBaslat(String ipAdres, int port){
         service = new AppiumServiceBuilder()
-                .withAppiumJS(new File("C:\\Users\\gurka\\AppData\\Roaming\\npm\\node_modules\\appium\\build\\lib\\main.js"))
+                .withAppiumJS(new File("C:\\Users\\EXCALIBUR\\AppData\\Roaming\\npm\\node_modules\\appium\\build\\lib\\main.js"))
                 .withIPAddress(ipAdres)
                 .usingPort(port)
                 .build();
         service.start();
     }
 
-
-    public static void uygulamayiKapat(){
+    public static void uygulamayiKapat() {
         if (driver != null) {
             driver.quit();
             driver = null;
@@ -58,5 +53,6 @@ public class Driver {
     public static void serverKapat(){
         service.stop();
     }
+
 
 }
